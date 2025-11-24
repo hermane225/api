@@ -12,6 +12,7 @@ import forfaitsRoutes from "./routes/forfaits.routes.js";
 import codesRoutes from "./routes/codes.routes.js";
 import agentsRoutes from "./routes/agents.routes.js";
 import groupRoutes from "./routes/group.routes.js";
+import statistiquesRoutes from "./routes/statistiques.routes.js";
 
 import errorHandler from "./middleware/errorHandler.js";
 
@@ -33,6 +34,7 @@ app.use("/api/forfaits", forfaitsRoutes);
 app.use("/api/codes", codesRoutes);
 app.use("/api/agents", agentsRoutes);
 app.use("/api/groups", groupRoutes);
+app.use("/api/statistiques", statistiquesRoutes);
 
 // health check
 app.get("/api/health", (req, res) => res.json({ ok: true, env: process.env.NODE_ENV || "dev" }));
