@@ -27,7 +27,7 @@ app.use(morgan("dev"));
 // Routes API prefixées
 app.use("/api/auth", authRoutes);
 app.use("/api/users", usersRoutes);
-app.use("/api/bornes", bornesRoutes);
+app.use("/api/bornes", bornesRoutes);  
 app.use("/api/alertes", alertesRoutes);
 app.use("/api/transactions", transactionsRoutes);
 app.use("/api/forfaits", forfaitsRoutes);
