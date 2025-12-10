@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Génération de Codes de Connexion</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background: #f5f5f5; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+    .header { background: #2c3e50; color: white; padding: 20px; margin-bottom: 30px; }
+    .form-section { background: white; padding: 20px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 5px; font-weight: bold; }
+    input, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; }
+    button { background: #3498db; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px; }
+    button:hover { background: #2980b9; }
+    .table-section { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+    th { background: #34495e; color: white; }
+    tr:hover { background: #f9f9f9; }
+    .menu { background: #2c3e50; color: white; padding: 20px; text-align: center; margin-top: 30px; }
+    .menu a { color: white; margin: 0 15px; text-decoration: none; }
+    .menu a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Génération Automatique de Codes de Connexion</h1>
+  </div>
+
+  <div class="container">
+    <div class="form-section">
+      <h2>Paramètres de Génération</h2>
+      <form id="generateForm">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+          <div class="form-group">
+            <label for="category">Catégorie de Forfait</label>
+            <select id="category" required>
+              <option value="">Sélectionner une catégorie</option>
+              <option value="Hebdomadaire">Hebdomadaire</option>
+              <option value="Mensuel">Mensuel</option>
+              <option value="Journalier">Journalier</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="description">Description du Forfait</label>
+            <input type="text" id="description" placeholder="Ex: Pass hebdo nuit 500f navigation..." readonly>
+          </div>
+
+          <div class="form-group">
+            <label for="forfait">Forfait Spécifique</label>
+            <select id="forfait" required>
+              <option value="">Sélectionner un forfait</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="quantity">Nombre de Codes à Générer</label>
+            <input type="number" id="quantity" min="1" value="1" required>
+          </div>
+        </div>
+
+        <button type="submit">Générer les Codes</button>
+        <button type="button" onclick="visitForfait()">Visiter</button>
+      </form>
+    </div>
+
+    <div class="table-section">
+      <h2>Codes Générés</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Catégorie Forfait</th>
+            <th>Forfait</th>
+            <th>Durée</th>
+            <th>Montant</th>
+            <th>Généré par (Agent)</th>
+          </tr>
+        </thead>
+        <tbody id="codesTable">
+          <tr><td colspan="6" style="text-align: center;">Aucun code généré</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="menu">
+    <a href="/">Accueil</a>
+    <a href="/forfaits">Forfaits</a>
+    <a href="/agents">Agents</a>
+    <a href="/codes">Codes</a>
+    <a href="/logout">Déconnexion</a>
+  </div>
+
+  <script>
+    document.getElementById('generateForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const forfaitId = document.getElementById('forfait').value;
+      const quantity = parseInt(document.getElementById('quantity').value);
+      const category = document.getElementById('category').value;
+
+      try {
+        const response = await fetch('/api/codes/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ forfaitId, quantity, category })
+        });
+        const data = await response.json();
+        if (response.ok) {
+          alert(data.message);
+          loadCodes();
+        }
+      } catch (error) {
+        console.error('Erreur:', error);
+      }
+    });
+
+    async function loadCodes() {
+      try {
+        const response = await fetch('/api/codes/all');
+        const codes = await response.json();
+        const tbody = document.getElementById('codesTable');
+        tbody.innerHTML = codes.map(code => `
+          <tr>
+            <td>${code.code}</td>
+            <td>${code.category}</td>
+            <td>${code.forfait?.name || '-'}</td>
+            <td>${code.durationValue} jours</td>
+            <td>${code.price}f</td>
+            <td>${code.generatedBy?.name || '-'}</td>
+          </tr>
+        `).join('');
+      } catch (error) {
+        console.error('Erreur:', error);
+      }
+    }
+
+    function visitForfait() {
+      alert('Redirection vers les détails du forfait');
+    }
+
+    loadCodes();
+  </script>
+</body>
+</html>
