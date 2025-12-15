@@ -8,12 +8,11 @@ const PORT = process.env.PORT || 5000;
 
 (async () => {
   try {
-    await connectDB(process.env.MONGO_URI); // passe bien l'URI
+    await connectDB(process.env.MONGO_URI);
     app.listen(PORT, () => {
-      console.log(` Serveur démarré sur http://localhost:${PORT}`);
+      console.log(`Serveur démarré sur http://localhost:${PORT}`);
     });
   } catch (error) {
     console.error("Erreur démarrage :", error);
-    process.exit(1);
   }
 })();
