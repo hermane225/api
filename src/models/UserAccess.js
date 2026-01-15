@@ -15,8 +15,8 @@ const userAccessSchema = new mongoose.Schema({
 
   // Plages horaires (format 24h)
   schedule: {
-    startHour: { type: String, default: "00:00" },  // ex: "08:00"
-    endHour: { type: String, default: "23:59" }     // ex: "18:00"
+    startHour: { type: String, default: "00:00" },  
+    endHour: { type: String, default: "23:59" }    
   },
 
   // Durée en minutes (0 = illimité)
