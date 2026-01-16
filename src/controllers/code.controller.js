@@ -40,3 +40,19 @@ export const assignCode = async (req, res, next) => {
     res.json(code);
   } catch (err) { next(err); }
 };
+
+export const checkCodeStatus = async (req, res, next) => {
+  try {
+    const { codeStr } = req.params;
+    const code = await Code.findOne({ code: codeStr }).populate("forfait");
+    if (!code) return res.status(404).json({ message: "Code introuvable" });
+    
+    res.json({
+      code: code.code,
+      used: code.used,
+      usedBy: code.usedBy,
+      forfait: code.forfait,
+      createdAt: code.createdAt
+    });
+  } catch (err) { next(err); }
+};
