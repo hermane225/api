@@ -58,7 +58,7 @@
 
 ---
 
-## 📊 Résumé
+## Résumé
 
 | Composant | Test | Résultat |
 |-----------|------|----------|
@@ -66,11 +66,11 @@
 | Script Autonome | Intégration | ✅ SUCCÈS |
 | Authentification API | Intégration | ✅ SUCCÈS |
 | Détection de borne | Intégration | ✅ SUCCÈS |
-| Endpoints REST | À confirmer | ⏳ Dépend de MongoDB |
+| Endpoints REST | À confirmer |  Dépend de MongoDB |
 
 ---
 
-## 🚀 Prochaines étapes
+##  Prochaines étapes
 
 1. **Vérifier MongoDB** - Nécessaire pour les endpoints REST
 2. **Tester les endpoints**:
