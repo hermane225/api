@@ -309,7 +309,7 @@ class BorneMonitor {
         snmpStats ? `| Périphériques: ${snmpStats.activeConnections}` : '',
       ].filter(Boolean).join(' ');
 
-      console.log(info);
+      process.stdout.write(`\r${info}`.padEnd(150));
 
     } catch (err) {
       if (err.response?.status === 401) {
