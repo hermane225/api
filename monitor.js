@@ -9,7 +9,7 @@ import { promisify } from 'util';
 dns.setServers(['8.8.8.8', '8.8.4.4']);
 const execAsync = promisify(exec);
 
-const API_BASE = "https://api.villageconnecte.voisilab.online";
+const API_BASE = "http://localhost:5000";
 let API_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NDAxMWE0ZDlkNjdiZmI4YjkwOWQ0YyIsInJvbGUiOiJhZG1pbiIsImxvZ2luIjoiaGVybWFuZSIsImlhdCI6MTc2NzYyMzE1NiwiZXhwIjoxNzY3NjI0OTU2fQ.jN4vK-NoQwuSGE7yM-XNYKERbxKfx_9GycbaZiwFFJI";
 
 const CREDENTIALS = { login: "hermane", password: "hermane2005" };
@@ -35,8 +35,13 @@ let detectedBorne = null;
 let monitoringInterval = null;
 
 async function authenticate() {
-  const { data } = await axios.post(`${API_BASE}/api/auth/login`, CREDENTIALS);
-  API_TOKEN = data.token;
+  try {
+    const { data } = await axios.post(`${API_BASE}/api/auth/login`, CREDENTIALS);
+    API_TOKEN = data.token;
+    console.log("✅ Authentification réussie");
+  } catch (err) {
+    console.warn("⚠️ Échec de l'authentification, utilisation du token existant:", err.message);
+  }
 }
 
 // Récupérer le SSID (nom du réseau WiFi)
@@ -303,7 +308,10 @@ export function stopMonitoring() {
 }
 
 // Lancer automatiquement le script si exécuté directement
-if (import.meta.url === `file://${process.argv[1]}`) {
+const isMainModule = import.meta.url.endsWith(process.argv[1]) || 
+                     process.argv[1].includes('monitor.js');
+
+if (isMainModule) {
   startMonitoring().catch(err => {
     console.error('Erreur lors du démarrage du monitoring:', err);
     process.exit(1);

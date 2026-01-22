@@ -17,7 +17,9 @@ const AUTO_START_MONITORING = process.env.AUTO_START_MONITORING === 'true';
       // Démarrer le monitoring automatiquement si configuré
       if (AUTO_START_MONITORING) {
         console.log("🚀 Démarrage automatique du monitoring des bornes...");
-        await borneMonitor.start();
+        borneMonitor.start().catch(err => {
+          console.warn("⚠️ Monitoring n'a pas pu démarrer:", err.message);
+        });
       } else {
         console.log("ℹ️ Monitoring inactif. Démarrer via POST /api/monitoring/start");
       }
