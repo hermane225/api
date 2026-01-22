@@ -4,13 +4,24 @@ import { verifyToken, permit } from "../middleware/auth.js";
 import { createUser, listUsers, getUser, updateUser, deleteUser ,updateUserRole } from "../controllers/user.controller.js";
 
 const router = express.Router();
-router.put("/update-role", verifyToken, permit("admin"), updateUserRole);
 
-router.get("/", verifyToken, permit("admin","agent"), listUsers);
-router.post("/", verifyToken, permit("admin"), createUser);
+// Modification de rôle : réservée au super_admin et admin pour ses agents
+router.put("/update-role", verifyToken, permit("super_admin", "admin"), updateUserRole);
+
+// Liste des utilisateurs : filtrée selon le rôle
+router.get("/", verifyToken, permit("super_admin", "admin", "agent"), listUsers);
+
+// Création d'utilisateur : admin et super_admin uniquement
+router.post("/", verifyToken, permit("super_admin", "admin"), createUser);
+
+// Récupération d'un utilisateur : avec vérification d'accès dans le contrôleur
 router.get("/:id", verifyToken, getUser);
-router.put("/:id", verifyToken, permit("admin"), updateUser);
-router.delete("/:id", verifyToken, permit("admin"), deleteUser);
+
+// Modification d'un utilisateur : avec vérification d'accès dans le contrôleur
+router.put("/:id", verifyToken, updateUser);
+
+// Suppression d'un utilisateur : avec vérification d'accès dans le contrôleur
+router.delete("/:id", verifyToken, deleteUser);
 
 export default router;
 
