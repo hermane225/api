@@ -45,20 +45,26 @@ class BorneMonitor {
     this.isRunning = false;
   }
 
-  async authenticate() {
-    try {
-      const { data } = await axios.post(
-        `${this.config.apiBase}/api/auth/login`,
-        this.config.credentials,
-        { timeout: 5000 }
-      );
-      this.config.apiToken = data.token;
-      console.log("✅ Authentification réussie");
-      return true;
-    } catch (err) {
-      console.error("❌ Erreur authentification:", err.message);
-      return false;
+  async authenticate(retries = 3) {
+    for (let attempt = 1; attempt <= retries; attempt++) {
+      try {
+        const { data } = await axios.post(
+          `${this.config.apiBase}/api/auth/login`,
+          this.config.credentials,
+          { timeout: 5000 }
+        );
+        this.config.apiToken = data.token;
+        console.log("✅ Authentification réussie");
+        return true;
+      } catch (err) {
+        console.error(`❌ Erreur authentification (tentative ${attempt}/${retries}):`, err.message);
+        if (attempt < retries) {
+          console.log(`⏳ Nouvelle tentative dans 2 secondes...`);
+          await new Promise(resolve => setTimeout(resolve, 2000));
+        }
+      }
     }
+    return false;
   }
 
   async getNetworkSSID() {
