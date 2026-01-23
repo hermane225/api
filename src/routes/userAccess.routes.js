@@ -8,32 +8,30 @@ import {
   deleteAccess,
   getAccessSummary
 } from "../controllers/userAccess.controller.js";
-import { verifyToken } from "../middleware/auth.js";
+import { verifyToken, permit } from "../middleware/auth.js";
 
 const router = express.Router();
 
-// Toutes les routes nécessitent authentification
-router.use(verifyToken);
+// POST /api/user-access - Créer un accès (admin uniquement)
+router.post("/", verifyToken, permit("admin"), createAccess);
 
-// POST /api/user-access - Créer un accès
-router.post("/", createAccess);
+// GET /api/user-access - Lister tous les accès (admin uniquement)
+router.get("/", verifyToken, permit("admin"), getAllAccess);
 
-// GET /api/user-access - Lister tous les accès (filtres: ?userId=&groupId=&active=)
-router.get("/", getAllAccess);
+// GET /api/user-access/summary - Tableau récapitulatif (admin uniquement)
+router.get("/summary", verifyToken, permit("admin"), getAccessSummary);
 
-// GET /api/user-access/summary - Tableau récapitulatif
-router.get("/summary", getAccessSummary);
+// GET /api/user-access/user/:userId - Accès d'un utilisateur spécifique (authentification requise)
+router.get("/user/:userId", verifyToken, getAccessByUser);
 
-// GET /api/user-access/user/:userId - Accès d'un utilisateur spécifique
-router.get("/user/:userId", getAccessByUser);
+// GET /api/user-access/:id - Détail d'un accès (authentification requise)
+router.get("/:id", verifyToken, getAccessById);
 
-// GET /api/user-access/:id - Détail d'un accès
-router.get("/:id", getAccessById);
+// PUT /api/user-access/:id - Mettre à jour un accès (admin uniquement)
+router.put("/:id", verifyToken, permit("admin"), updateAccess);
 
-// PUT /api/user-access/:id - Mettre à jour un accès
-router.put("/:id", updateAccess);
-
-// DELETE /api/user-access/:id - Supprimer un accès
-router.delete("/:id", deleteAccess);
+// DELETE /api/user-access/:id - Supprimer un accès (admin uniquement)
+router.delete("/:id", verifyToken, permit("admin"), deleteAccess);
 
 export default router;
+
