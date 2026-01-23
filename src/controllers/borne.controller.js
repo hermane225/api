@@ -46,8 +46,8 @@ export const pushBorneData = async (req, res, next) => {
       return res.status(400).json({ message: "IP de la borne requise" });
     }
 
-    // Chercher la borne existante par IP
-    let borne = await Borne.findOne({ ip });
+    // Chercher la borne existante par IP (requête plus robuste)
+    let borne = await Borne.findOne({ ip: ip.trim() });
 
     if (borne) {
       // Mettre à jour la borne existante
@@ -60,7 +60,7 @@ export const pushBorneData = async (req, res, next) => {
     } else {
       // Créer une nouvelle borne
       borne = await Borne.create({
-        ip,
+        ip: ip.trim(),
         name: name || `Borne ${ip}`,
         status: status || "HORS_LIGNE",
         lastSeen: lastSeen || new Date(),

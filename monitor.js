@@ -231,6 +231,14 @@ async function checkAndUpsert() {
     const temps = new Date().toLocaleTimeString('fr-FR');
     const icone = statusIcon(status);
 
+    // Vérifier à nouveau si la borne existe (évite la duplication)
+    if (!borneId) {
+      const existingBorneId = await findBorneByIP(detectedBorne.ip);
+      if (existingBorneId) {
+        borneId = existingBorneId;
+      }
+    }
+
     if (!borneId) {
       // Créer une nouvelle borne
       const { data } = await axios.post(
