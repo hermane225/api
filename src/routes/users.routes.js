@@ -1,9 +1,13 @@
 import express from "express";
 import { verifyToken, permit } from "../middleware/auth.js";
 
-import { createUser, listUsers, getUser, updateUser, deleteUser ,updateUserRole } from "../controllers/user.controller.js";
+import { createUser, listUsers, getUser, updateUser, deleteUser ,updateUserRole, getMyProfile, updateMyProfile } from "../controllers/user.controller.js";
 
 const router = express.Router();
+
+// Profil personnel : récupération et mise à jour
+router.get("/profile/me", verifyToken, getMyProfile);
+router.put("/profile/me", verifyToken, updateMyProfile);
 
 // Modification de rôle : réservée au super_admin et admin pour ses agents
 router.put("/update-role", verifyToken, permit("super_admin", "admin"), updateUserRole);

@@ -72,3 +72,60 @@ export const updateUserRole = async (req, res, next) => {
     next(err);
   }
 };
+
+// Obtenir le profil personnel de l'utilisateur connecté
+export const getMyProfile = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user.id).populate("group");
+    if (!user) return res.status(404).json({ message: "Utilisateur introuvable" });
+    
+    res.json({
+      id: user._id,
+      login: user.login,
+      name: user.name,
+      role: user.role,
+      group: user.group,
+      profile: user.profile || {},
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// Mettre à jour le profil personnel de l'utilisateur connecté
+export const updateMyProfile = async (req, res, next) => {
+  try {
+    const { profile, name } = req.body;
+    
+    const updates = {
+      ...(name && { name }),
+      ...(profile && { profile: { ...profile } })
+    };
+
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      updates,
+      { new: true }
+    ).populate("group");
+
+    if (!user) return res.status(404).json({ message: "Utilisateur introuvable" });
+
+    res.json({
+      message: "✅ Profil mis à jour avec succès",
+      user: {
+        id: user._id,
+        login: user.login,
+        name: user.name,
+        role: user.role,
+        group: user.group,
+        profile: user.profile || {},
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt
+      }
+    });
+  } catch (err) {
+    next(err);
+  }
+};
