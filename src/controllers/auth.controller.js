@@ -6,7 +6,7 @@ import crypto from "crypto";
 //  REGISTER 
 export const register = async (req, res, next) => {
   try {
-    const { login, password, name } = req.body;
+    const { login, password, name, profile } = req.body;
 
     const existing = await User.findOne({ login });
     if (existing) return res.status(400).json({ message: "Login déjà utilisé" });
@@ -19,11 +19,18 @@ export const register = async (req, res, next) => {
       password: hash,
       name,
       role: "user",
+      profile: profile || {}
     });
 
     res.status(201).json({
       message: "✅ Utilisateur créé avec succès",
-      user: { id: user._id, login: user.login, role: user.role },
+      user: { 
+        id: user._id, 
+        login: user.login, 
+        role: user.role,
+        name: user.name,
+        profile: user.profile
+      },
     });
   } catch (err) {
     next(err);
@@ -49,7 +56,13 @@ export const login = async (req, res, next) => {
 
     res.json({
       message: "Connexion réussie",
-      user: { id: user._id, login: user.login, role: user.role },
+      user: { 
+        id: user._id, 
+        login: user.login, 
+        role: user.role,
+        name: user.name,
+        profile: user.profile || {}
+      },
       token,
     });
   } catch (err) {
