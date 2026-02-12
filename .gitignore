@@ -1,0 +1,10 @@
+# Dossiers à ignorer
+node_modules/
+logs/
+uploads/
+
+# Fichiers sensibles
+.env
+
+# Tous les fichiers de test JS
+test*.js
