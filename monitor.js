@@ -10,7 +10,7 @@ dns.setServers(['8.8.8.8', '8.8.4.4']);
 const execAsync = promisify(exec);
 
 const API_BASE = "http://localhost:5000";
-let API_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NDAxMWE0ZDlkNjdiZmI4YjkwOWQ0YyIsInJvbGUiOiJhZG1pbiIsImxvZ2luIjoiaGVybWFuZSIsImlhdCI6MTc2NzYyMzE1NiwiZXhwIjoxNzY3NjI0OTU2fQ.jN4vK-NoQwuSGE7yM-XNYKERbxKfx_9GycbaZiwFFJI";
+let API_TOKEN = null;
 
 const CREDENTIALS = { login: "hermane", password: "hermane2005" };
 
@@ -288,7 +288,7 @@ async function checkAndUpsert() {
     process.stdout.write(`\r${info}`.padEnd(150));
 
   } catch (err) {
-    if (err.response?.status === 401) {
+    if (err.response?.status === 401 || err.response?.status === 403) {
       await authenticate();
       return checkAndUpsert();
     }
