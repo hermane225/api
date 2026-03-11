@@ -40,6 +40,13 @@ app.use("/api/groups", groupRoutes);
 app.use("/api/statistiques", statistiquesRoutes);
 app.use("/api/user-access", userAccessRoutes);
 
+// Route racine
+app.get("/", (req, res) => res.json({ 
+  service: "Village Connecté API", 
+  status: "running",
+  docs: "/api/health"
+}));
+
 // health check
 app.get("/api/health", (req, res) => res.json({ ok: true, env: process.env.NODE_ENV || "dev" }));
 

@@ -27,7 +27,7 @@ services:
     environment:
       - NODE_ENV=${NODE_ENV:-production}
       - PORT=${PORT:-5000}
-      - MONGO_URI=${MONGO_URI:-mongodb://mongodb:27017/village_connecte}
+      - MONGO_URI=${MONGO_URI}
     depends_on:
       mongodb:
         condition: service_healthy
@@ -39,9 +39,17 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=traefik-network"
+      # HTTPS router
       - "traefik.http.routers.village-connecte-api.rule=Host(`${DOMAIN}`)"
       - "traefik.http.routers.village-connecte-api.entrypoints=websecure"
       - "traefik.http.routers.village-connecte-api.tls.certresolver=letsencrypt"
+      # HTTP → HTTPS redirect
+      - "traefik.http.routers.village-connecte-api-http.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.village-connecte-api-http.entrypoints=web"
+      - "traefik.http.routers.village-connecte-api-http.middlewares=redirect-to-https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=true"
+      # Service
       - "traefik.http.services.village-connecte-api.loadbalancer.server.port=5000"
     networks:
       - app-network
