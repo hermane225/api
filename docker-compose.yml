@@ -1,27 +1,59 @@
 services:
-  api:
-    container_name: village-connecte-api
-    build: .
-    ports:
-      - "5000:5000"
-    env_file:
-      - .env
-    depends_on:
-      - mongodb
-    restart: unless-stopped
-
   mongodb:
     container_name: village-connecte-mongo
-    image: mongo:latest
-    ports:
-      - "27017:27017"
+    image: mongo:7
+    command: ["--bind_ip_all"]
     environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: 7oM=JCuiG=
-      MONGO_INITDB_DATABASE: village_connecte
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+      - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE:-village_connecte}
     volumes:
       - mongo_data:/data/db
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - app-network
+      
+  api:
+    container_name: village-connecte-api
+    build: .
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - PORT=${PORT:-5000}
+      - MONGO_URI=${MONGO_URI:-mongodb://mongodb:27017/village_connecte}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    restart: unless-stopped
+    expose:
+      - "5000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik-network"
+      - "traefik.http.routers.village-connecte-api.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.village-connecte-api.entrypoints=websecure"
+      - "traefik.http.routers.village-connecte-api.tls.certresolver=letsencrypt"
+      - "traefik.http.services.village-connecte-api.loadbalancer.server.port=5000"
+    networks:
+      - app-network
+      - traefik-network
+
+  
 
 volumes:
   mongo_data:
+
+networks:
+  app-network:
+    driver: bridge
+  traefik-network:
+    external: true
