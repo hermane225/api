@@ -3,6 +3,7 @@ dotenv.config();
 
 import app, { borneMonitor } from "./src/app.js";
 import connectDB from "./src/config/db.js";
+import mongoose from "mongoose";
 
 const PORT = process.env.PORT || 5000;
 const AUTO_START_MONITORING = process.env.AUTO_START_MONITORING === 'true';
@@ -25,18 +26,38 @@ const AUTO_START_MONITORING = process.env.AUTO_START_MONITORING === 'true';
       }
     });
 
-    // Graceful shutdown
-    process.on('SIGTERM', () => {
+    // Graceful shutdown avec gestion de MongoDB
+    const gracefulShutdown = async () => {
       console.log('📴 Arrêt du serveur...');
       borneMonitor.stop();
-      server.close(() => {
+      
+      // Attendre que les requêtes actuelles se terminent
+      server.close(async () => {
         console.log('❌ Serveur arrêté');
+        
+        // Fermer la connexion MongoDB
+        try {
+          await mongoose.connection.close();
+          console.log('❌ Connexion MongoDB fermée');
+        } catch (err) {
+          console.error('❌ Erreur fermeture MongoDB:', err.message);
+        }
+        
         process.exit(0);
       });
-    });
+      
+      // Timeout forcé après 30 secondes
+      setTimeout(() => {
+        console.error('⚠️ Shutdown timeout, forçage de l\'arrêt...');
+        process.exit(1);
+      }, 30000);
+    };
+
+    process.on('SIGTERM', gracefulShutdown);
+    process.on('SIGINT', gracefulShutdown);
 
   } catch (error) {
-    console.error("❌ Erreur démarrage :", error);
+    console.error("❌ Erreur démarrage :", error.message);
     process.exit(1);
   }
 })();
