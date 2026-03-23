@@ -13,12 +13,7 @@ const connectDB = async (mongoURI) => {
       
       // Pool de connexions
       minPoolSize: 5,
-      maxPoolSize: 10,
-      
-      // Logs améliorés
-      onError: (err) => {
-        console.error("❌ Erreur MongoDB:", err.message);
-      }
+      maxPoolSize: 10
     });
     
     // Event listeners pour diagnostiquer les problèmes
